@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Perhitungan Insentif AB Peduli</title>
     <style>
         body {
@@ -17,229 +17,408 @@
         }
         .container {
             background-color: #ffffff;
-            padding: 30px 40px;
+            padding: 24px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             width: 100%;
-            max-width: 600px;
+            max-width: 960px;
         }
-        h1, h2 {
-            text-align: center;
-            color: #0056b3;
+        h1, h2 { text-align:center; color:#0056b3; margin:8px 0; }
+        .section { margin-top: 18px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 18px;
         }
-        h1 {
-            margin-bottom: 20px;
-        }
-        h2 {
-            margin-top: 30px;
-            border-bottom: 2px solid #0056b3;
-            padding-bottom: 10px;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
+        .input-group { margin-bottom: 6px; }
+        label { display:block; font-weight:600; color:#444; margin-bottom:4px; }
+        input[type="number"] { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+        .controls { display:flex; gap:10px; margin-top:12px; }
         button {
-            width: 100%;
-            padding: 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            padding:10px 14px; border-radius:6px; border:none; cursor:pointer;
+            font-weight:600; color:white; background:#007bff;
         }
-        button:hover {
-            background-color: #0056b3;
+        button.alt { background:#28a745; }
+        button.warn { background:#f39c12; }
+        button.ghost { background:#6c757d; }
+        .results { margin-top:18px; }
+        #hasil-perhitungan p, .history-item {
+            background: #e9f5ff; padding:10px; border-left:5px solid #007bff; margin:8px 0; border-radius:4px;
         }
-        .results {
-            margin-top: 30px;
-        }
-        #hasil-perhitungan p {
-            background-color: #e9f5ff;
-            padding: 15px;
-            border-left: 5px solid #007bff;
-            margin: 10px 0;
-            font-size: 16px;
-        }
-        #hasil-perhitungan strong {
-            color: #0056b3;
+        .chart-wrap { margin-top:10px; background:#fff; padding:10px; border-radius:6px; border:1px solid #eee; }
+        .history { margin-top:10px; }
+        .history-list { max-height:200px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fff; }
+        .history-item { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+        .small { font-size:12px; color:#555; }
+        @media (max-width:800px) {
+            .grid { grid-template-columns: 1fr; }
+            .controls { flex-direction:column; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Perhitungan Insentif AB Peduli</h1>
-        <div class="dashboard">
+    <div class="container" role="main" aria-labelledby="title">
+        <h1 id="title">Perhitungan Insentif IKL (AB Peduli)</h1>
+
+        <div class="section">
             <h2>Input Data</h2>
-            <div class="input-group">
-                <label for="danaAmil">Jumlah Dana Amil</label>
-                <input type="number" id="danaAmil" placeholder="Masukkan jumlah dana amil">
-            </div>
-            <div class="input-group">
-                <label for="persentaseInsentif">Persentase Dana Insentif (%)</label>
-                <input type="number" id="persentaseInsentif" placeholder="Masukkan persentase">
+            <div class="grid">
+                <div class="input-group">
+                    <label for="danaAmil">Jumlah Dana Amil (IDR)</label>
+                    <input type="number" id="danaAmil" min="0" step="1000" placeholder="Masukkan jumlah dana amil" />
+                </div>
+                <div class="input-group">
+                    <label for="persentaseInsentif">Persentase Dana Insentif (%)</label>
+                    <input type="number" id="persentaseInsentif" min="0" max="100" step="0.1" placeholder="0 - 100" />
+                </div>
             </div>
         </div>
 
-        <div class="dashboard kpi-section">
+        <div class="section">
             <h2>Input Pencapaian KPI BOD</h2>
-            <div class="input-group">
-                <label for="kpiDanaYoY">Realisasi Pertumbuhan Penghimpunan Dana (YoY) (%) <small>(Target: 25%)</small></label>
-                <input type="number" id="kpiDanaYoY" placeholder="Masukkan realisasi %">
-            </div>
-            <div class="input-group">
-                <label for="kpiBiayaOperasional">Realisasi Rasio Biaya Operasional (%) <small>(Target: 12.5% Maks)</small></label>
-                <input type="number" id="kpiBiayaOperasional" placeholder="Masukkan realisasi %">
-            </div>
-            <div class="input-group">
-                <label for="kpiWTP">Realisasi Opini Audit WTP <small>(Target: 1, 1=Ya, 0=Tidak)</small></label>
-                <input type="number" id="kpiWTP" placeholder="Masukkan 1 atau 0">
-            </div>
-            <div class="input-group">
-                <label for="kpiKepuasanDonatur">Realisasi Indeks Kepuasan Donatur <small>(Target: 8.5/10)</small></label>
-                <input type="number" id="kpiKepuasanDonatur" placeholder="Masukkan nilai realisasi">
-            </div>
-            <div class="input-group">
-                <label for="kpiProgramBaru">Realisasi Peluncuran Program Unggulan Baru <small>(Target: 2)</small></label>
-                <input type="number" id="kpiProgramBaru" placeholder="Masukkan jumlah program">
+            <div class="grid">
+                <div class="input-group">
+                    <label for="kpiDanaYoY">Pertumbuhan Penghimpunan Dana (YoY) % (Target 25%)</label>
+                    <input type="number" id="kpiDanaYoY" min="0" step="0.1" placeholder="%" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiBiayaOperasional">Rasio Biaya Operasional % (Target ≤12.5%)</label>
+                    <input type="number" id="kpiBiayaOperasional" min="0" step="0.1" placeholder="%" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiWTP">Opini Audit WTP (1=Ya,0=Tidak)</label>
+                    <input type="number" id="kpiWTP" min="0" max="1" step="1" placeholder="0 or 1" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiKepuasanDonatur">Indeks Kepuasan Donatur (0-10) (Target 8.5)</label>
+                    <input type="number" id="kpiKepuasanDonatur" min="0" max="10" step="0.1" placeholder="0-10" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiProgramBaru">Peluncuran Program Baru (Target 2)</label>
+                    <input type="number" id="kpiProgramBaru" min="0" step="1" placeholder="jumlah" />
+                </div>
             </div>
         </div>
 
-        <div class="dashboard kpi-section">
+        <div class="section">
             <h2>Input Pencapaian KPI DPS</h2>
-            <div class="input-group">
-                <label for="kpiAuditSyariah">Realisasi Laporan Audit Syariah <small>(Target: 1)</small></label>
-                <input type="number" id="kpiAuditSyariah" placeholder="Jumlah laporan">
-            </div>
-            <div class="input-group">
-                <label for="kpiTindakLanjut">Realisasi Tindak Lanjut Temuan Audit (%) <small>(Target: 100%)</small></label>
-                <input type="number" id="kpiTindakLanjut" placeholder="Masukkan realisasi %">
-            </div>
-            <div class="input-group">
-                <label for="kpiWaktuRespons">Realisasi Waktu Respons Opini Syariah (hari) <small>(Target: <= 14)</small></label>
-                <input type="number" id="kpiWaktuRespons" placeholder="Masukkan jumlah hari">
-            </div>
-            <div class="input-group">
-                <label for="kpiPersetujuanProduk">Realisasi Persetujuan Produk & Program <small>(Target: 1, 1=Ya, 0=Tidak)</small></label>
-                <input type="number" id="kpiPersetujuanProduk" placeholder="Masukkan 1 atau 0">
-            </div>
-            <div class="input-group">
-                <label for="kpiSesiEdukasi">Realisasi Sesi Edukasi Amil <small>(Target: 1)</small></label>
-                <input type="number" id="kpiSesiEdukasi" placeholder="Jumlah sesi">
-            </div>
-            <div class="input-group">
-                <label for="kpiKehadiranRapat">Realisasi Kehadiran Rapat Pleno (%) <small>(Target: > 90%)</small></label>
-                <input type="number" id="kpiKehadiranRapat" placeholder="Masukkan realisasi %">
+            <div class="grid">
+                <div class="input-group">
+                    <label for="kpiAuditSyariah">Laporan Audit Syariah (Target 1)</label>
+                    <input type="number" id="kpiAuditSyariah" min="0" step="1" placeholder="jumlah" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiTindakLanjut">Tindak Lanjut Temuan Audit % (Target 100%)</label>
+                    <input type="number" id="kpiTindakLanjut" min="0" max="100" step="0.1" placeholder="%" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiWaktuRespons">Waktu Respons Opini Syariah (hari) (Target ≤14)</label>
+                    <input type="number" id="kpiWaktuRespons" min="0" step="1" placeholder="hari" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiPersetujuanProduk">Persetujuan Produk & Program (1=Ya,0=Tidak)</label>
+                    <input type="number" id="kpiPersetujuanProduk" min="0" max="1" step="1" placeholder="0 or 1" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiSesiEdukasi">Sesi Edukasi Amil (Target 1)</label>
+                    <input type="number" id="kpiSesiEdukasi" min="0" step="1" placeholder="jumlah" />
+                </div>
+                <div class="input-group">
+                    <label for="kpiKehadiranRapat">Kehadiran Rapat Pleno % (Target >90%)</label>
+                    <input type="number" id="kpiKehadiranRapat" min="0" max="100" step="0.1" placeholder="%" />
+                </div>
             </div>
         </div>
 
-        <button id="hitung" style="margin-top: 20px;">Hitung Semua</button>
+        <div class="controls">
+            <button id="hitung">Hitung Semua</button>
+            <button id="reset" class="ghost">Reset</button>
+            <button id="exportCsv" class="alt">Export CSV</button>
+            <button id="print" class="warn">Print</button>
+        </div>
 
-        <div class="results">
+        <div class="results" aria-live="polite">
             <h2>Hasil Perhitungan</h2>
-            <div id="hasil-perhitungan">
-                <!-- Hasil akan ditampilkan di sini -->
+            <div id="hasil-perhitungan"><p class="small">Belum ada perhitungan.</p></div>
+
+            <div class="chart-wrap">
+                <canvas id="kpiChart" width="400" height="160" aria-label="Chart ringkasan KPI"></canvas>
+            </div>
+
+            <div class="history">
+                <h3 class="small">Riwayat Perhitungan (localStorage)</h3>
+                <div class="history-list" id="historyList"></div>
+                <div style="margin-top:8px;">
+                    <button id="clearHistory" class="ghost">Hapus Riwayat</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        document.getElementById('hitung').addEventListener('click', function() {
-            const danaAmil = parseFloat(document.getElementById('danaAmil').value);
-            const persentaseInsentif = parseFloat(document.getElementById('persentaseInsentif').value);
+        // Utility
+        function formatRupiah(angka) {
+            if (!isFinite(angka)) return 'Rp0';
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.round(angka));
+        }
+        function clamp(v, min=null, max=null) {
+            if (isNaN(v)) return min ?? 0;
+            if (min !== null && v < min) return min;
+            if (max !== null && v > max) return max;
+            return v;
+        }
+        // Elements
+        const el = id => document.getElementById(id);
+        const inputs = [
+            'danaAmil','persentaseInsentif',
+            'kpiDanaYoY','kpiBiayaOperasional','kpiWTP','kpiKepuasanDonatur','kpiProgramBaru',
+            'kpiAuditSyariah','kpiTindakLanjut','kpiWaktuRespons','kpiPersetujuanProduk','kpiSesiEdukasi','kpiKehadiranRapat'
+        ].map(el);
+        const hasilDiv = el('hasil-perhitungan');
+        const historyKey = 'insentif_riwayat_v1';
 
-            if (isNaN(danaAmil) || isNaN(persentaseInsentif)) {
-                alert("Harap masukkan nilai yang valid untuk kedua input.");
-                return;
+        // Chart setup
+        const ctx = document.getElementById('kpiChart').getContext('2d');
+        let kpiChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['BOD Avg %', 'DPS Avg %'],
+                datasets: [{
+                    label: 'Pencapaian (%)',
+                    data: [0,0],
+                    backgroundColor: ['#007bff','#28a745']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero:true, max: 200 } },
+                plugins: { legend: { display:false } }
             }
+        });
 
-            const danaInsentif = (persentaseInsentif / 100) * danaAmil;
-
-            // Perhitungan Insentif Kinerja Lembaga (IKL)
+        // Core calculation (same logic as previous corrected version)
+        function calculateAndRender(saveToHistory = true) {
+            // parse base inputs
+            const danaAmil = parseFloat(el('danaAmil').value);
+            const persentaseInsentif = parseFloat(el('persentaseInsentif').value);
+            if (isNaN(danaAmil) || danaAmil < 0) { showError('Masukkan Jumlah Dana Amil yang valid (>=0).'); return null; }
+            if (isNaN(persentaseInsentif) || persentaseInsentif < 0 || persentaseInsentif > 100) { showError('Persentase insentif harus 0-100.'); return null; }
+            const danaInsentif = danaAmil * persentaseInsentif / 100;
             const totalBudgetIKL = danaInsentif * 0.40;
-            const nilaiPerPoin = totalBudgetIKL / 30;
+
+            const totalPoin = 30;
+            const nilaiPerPoin = totalPoin === 0 ? 0 : (totalBudgetIKL / totalPoin);
             const insentifDPS_awal = nilaiPerPoin * 4;
             const insentifBOD_awal = nilaiPerPoin * 6;
 
-            // Ambil nilai realisasi KPI BOD
-            const realisasiDanaYoY = parseFloat(document.getElementById('kpiDanaYoY').value);
-            const realisasiBiayaOperasional = parseFloat(document.getElementById('kpiBiayaOperasional').value);
-            const realisasiWTP = parseFloat(document.getElementById('kpiWTP').value);
-            const realisasiKepuasanDonatur = parseFloat(document.getElementById('kpiKepuasanDonatur').value);
-            const realisasiProgramBaru = parseFloat(document.getElementById('kpiProgramBaru').value);
-            
-            // Ambil nilai realisasi KPI DPS
-            const realisasiAuditSyariah = parseFloat(document.getElementById('kpiAuditSyariah').value);
-            const realisasiTindakLanjut = parseFloat(document.getElementById('kpiTindakLanjut').value);
-            const realisasiWaktuRespons = parseFloat(document.getElementById('kpiWaktuRespons').value);
-            const realisasiPersetujuanProduk = parseFloat(document.getElementById('kpiPersetujuanProduk').value);
-            const realisasiSesiEdukasi = parseFloat(document.getElementById('kpiSesiEdukasi').value);
-            const realisasiKehadiranRapat = parseFloat(document.getElementById('kpiKehadiranRapat').value);
+            // parse KPIs
+            const realisasiDanaYoY = parseFloat(el('kpiDanaYoY').value);
+            const realisasiBiayaOperasional = parseFloat(el('kpiBiayaOperasional').value);
+            const realisasiWTP = parseFloat(el('kpiWTP').value);
+            const realisasiKepuasanDonatur = parseFloat(el('kpiKepuasanDonatur').value);
+            const realisasiProgramBaru = parseFloat(el('kpiProgramBaru').value);
+            const realisasiAuditSyariah = parseFloat(el('kpiAuditSyariah').value);
+            const realisasiTindakLanjut = parseFloat(el('kpiTindakLanjut').value);
+            const realisasiWaktuRespons = parseFloat(el('kpiWaktuRespons').value);
+            const realisasiPersetujuanProduk = parseFloat(el('kpiPersetujuanProduk').value);
+            const realisasiSesiEdukasi = parseFloat(el('kpiSesiEdukasi').value);
+            const realisasiKehadiranRapat = parseFloat(el('kpiKehadiranRapat').value);
 
-            const kpiInputs = [
-                realisasiDanaYoY, realisasiBiayaOperasional, realisasiWTP, realisasiKepuasanDonatur, realisasiProgramBaru,
-                realisasiAuditSyariah, realisasiTindakLanjut, realisasiWaktuRespons, realisasiPersetujuanProduk, realisasiSesiEdukasi, realisasiKehadiranRapat
-            ];
-            if (kpiInputs.some(isNaN)) {
-                alert("Harap isi semua field KPI dengan nilai yang valid.");
-                return;
+            const allKpi = [realisasiDanaYoY,realisasiBiayaOperasional,realisasiWTP,realisasiKepuasanDonatur,realisasiProgramBaru,
+                realisasiAuditSyariah,realisasiTindakLanjut,realisasiWaktuRespons,realisasiPersetujuanProduk,realisasiSesiEdukasi,realisasiKehadiranRapat];
+            if (allKpi.some(v => isNaN(v))) { showError('Isi semua field KPI dengan nilai yang valid.'); return null; }
+
+            // BOD
+            const pencapaianDanaYoY = clamp(realisasiDanaYoY / 25, 0, Infinity);
+            const pencapaianBiayaOperasional = clamp(1 + ((12.5 - realisasiBiayaOperasional) / 12.5), 0, Infinity);
+            const pencapaianWTP = clamp(realisasiWTP / 1, 0, 1);
+            const pencapaianKepuasanDonatur = clamp(realisasiKepuasanDonatur / 8.5, 0, Infinity);
+            const pencapaianProgramBaru = clamp(realisasiProgramBaru / 2, 0, Infinity);
+
+            const totalPencapaianBOD = pencapaianDanaYoY + pencapaianBiayaOperasional + pencapaianWTP + pencapaianKepuasanDonatur + pencapaianProgramBaru;
+            const rataRataPencapaianKPI_BOD = totalPencapaianBOD / 5;
+            let insentifBOD_final = Math.max(0, insentifBOD_awal * rataRataPencapaianKPI_BOD);
+
+            // DPS
+            const pencapaianAuditSyariah = clamp(realisasiAuditSyariah / 1, 0, 1);
+            const pencapaianTindakLanjut = clamp(realisasiTindakLanjut / 100, 0, 1);
+            const pencapaianWaktuRespons = clamp(1 + ((14 - realisasiWaktuRespons) / 14), 0, Infinity);
+            const pencapaianPersetujuanProduk = clamp(realisasiPersetujuanProduk / 1, 0, 1);
+            const pencapaianSesiEdukasi = clamp(realisasiSesiEdukasi / 1, 0, Infinity);
+            const pencapaianKehadiranRapat = clamp(realisasiKehadiranRapat / 90, 0, Infinity);
+
+            const totalPencapaianDPS = pencapaianAuditSyariah + pencapaianTindakLanjut + pencapaianWaktuRespons + pencapaianPersetujuanProduk + pencapaianSesiEdukasi + pencapaianKehadiranRapat;
+            const rataRataPencapaianKPI_DPS = totalPencapaianDPS / 6;
+            let insentifDPS_final = Math.max(0, insentifDPS_awal * rataRataPencapaianKPI_DPS);
+
+            // Pastikan total final tidak melebihi totalBudgetIKL
+            const totalFinalIKL = insentifBOD_final + insentifDPS_final;
+            let catatan = '';
+            if (totalBudgetIKL > 0 && totalFinalIKL > totalBudgetIKL) {
+                const scale = totalBudgetIKL / totalFinalIKL;
+                insentifBOD_final *= scale;
+                insentifDPS_final *= scale;
+                catatan = 'Total insentif distandarkan agar tidak melebihi total budget IKL.';
             }
 
-            // Hitung persentase pencapaian KPI BOD
-            const pencapaianDanaYoY = (realisasiDanaYoY / 25);
-            const pencapaianBiayaOperasional = (1 + (12.5 - realisasiBiayaOperasional) / 12.5);
-            const pencapaianWTP = (realisasiWTP / 1);
-            const pencapaianKepuasanDonatur = (realisasiKepuasanDonatur / 8.5);
-            const pencapaianProgramBaru = (realisasiProgramBaru / 2);
-            const totalPencapaianBOD = pencapaianDanaYoY + pencapaianBiayaOperasional + pencapaianWTP + pencapaianKepuasanDonatur + pencapaianProgramBaru;
-            const rataRataPencapaianKPI_BOD = (totalPencapaianBOD / 5);
-            const insentifBOD_final = insentifBOD_awal * rataRataPencapaianKPI_BOD;
+            // Prepare result object
+            const result = {
+                createdAt: new Date().toISOString(),
+                danaAmil, persentaseInsentif, danaInsentif, totalBudgetIKL,
+                nilaiPerPoin, insentifDPS_awal, insentifBOD_awal,
+                rataRataPencapaianKPI_BOD, insentifBOD_final,
+                rataRataPencapaianKPI_DPS, insentifDPS_final,
+                totalFinalIKL: insentifBOD_final + insentifDPS_final,
+                catatan
+            };
 
-            // Hitung persentase pencapaian KPI DPS
-            const pencapaianAuditSyariah = (realisasiAuditSyariah / 1);
-            const pencapaianTindakLanjut = (realisasiTindakLanjut / 100);
-            const pencapaianWaktuRespons = (1 + (14 - realisasiWaktuRespons) / 14);
-            const pencapaianPersetujuanProduk = (realisasiPersetujuanProduk / 1);
-            const pencapaianSesiEdukasi = (realisasiSesiEdukasi / 1);
-            const pencapaianKehadiranRapat = (realisasiKehadiranRapat / 90);
-            const totalPencapaianDPS = pencapaianAuditSyariah + pencapaianTindakLanjut + pencapaianWaktuRespons + pencapaianPersetujuanProduk + pencapaianSesiEdukasi + pencapaianKehadiranRapat;
-            const rataRataPencapaianKPI_DPS = (totalPencapaianDPS / 6);
-            const insentifDPS_final = insentifDPS_awal * rataRataPencapaianKPI_DPS;
-
-            const hasilDiv = document.getElementById('hasil-perhitungan');
+            // Render result
             hasilDiv.innerHTML = `
-                <p><strong>Total Budget Insentif IKL:</strong> ${formatRupiah(totalBudgetIKL)}</p>
-                <p><strong>Nilai per Poin:</strong> ${formatRupiah(nilaiPerPoin)}</p>
-                <p><strong>Insentif IKL Awal untuk DPS:</strong> ${formatRupiah(insentifDPS_awal)}</p>
-                <p><strong>Insentif IKL Awal untuk BOD:</strong> ${formatRupiah(insentifBOD_awal)}</p>
-                <hr>
-                <h3 style="text-align:center; color: #0056b3; margin-bottom: 15px;">Realisasi Insentif Final</h3>
-                <p><strong>Rata-rata Pencapaian KPI BOD:</strong> ${(rataRataPencapaianKPI_BOD * 100).toFixed(2)}%</p>
-                <p><strong>Realisasi Insentif IKL Final untuk BOD:</strong> ${formatRupiah(insentifBOD_awal)} x ${(rataRataPencapaianKPI_BOD * 100).toFixed(2)}% = <strong>${formatRupiah(insentifBOD_final)}</strong></p>
-                <p><strong>Rata-rata Pencapaian KPI DPS:</strong> ${(rataRataPencapaianKPI_DPS * 100).toFixed(2)}%</p>
-                <p><strong>Realisasi Insentif IKL Final untuk DPS:</strong> ${formatRupiah(insentifDPS_awal)} x ${(rataRataPencapaianKPI_DPS * 100).toFixed(2)}% = <strong>${formatRupiah(insentifDPS_final)}</strong></p>
+                <p><strong>Total Budget Insentif IKL:</strong> ${formatRupiah(result.totalBudgetIKL)}</p>
+                <p><strong>Nilai per Poin (asumsi ${totalPoin} poin):</strong> ${formatRupiah(result.nilaiPerPoin)}</p>
+                <p><strong>Insentif Awal DPS (4 poin):</strong> ${formatRupiah(result.insentifDPS_awal)}</p>
+                <p><strong>Insentif Awal BOD (6 poin):</strong> ${formatRupiah(result.insentifBOD_awal)}</p>
+                <hr />
+                <p><strong>Rata-rata Pencapaian KPI BOD:</strong> ${(result.rataRataPencapaianKPI_BOD*100).toFixed(2)}%</p>
+                <p><strong>Insentif Final BOD:</strong> ${formatRupiah(result.insentifBOD_final)}</p>
+                <p><strong>Rata-rata Pencapaian KPI DPS:</strong> ${(result.rataRataPencapaianKPI_DPS*100).toFixed(2)}%</p>
+                <p><strong>Insentif Final DPS:</strong> ${formatRupiah(result.insentifDPS_final)}</p>
+                <p><strong>Total Insentif Final (BOD + DPS):</strong> ${formatRupiah(result.totalFinalIKL)}</p>
+                ${result.catatan ? `<p style="color:#b04d00;"><strong>${result.catatan}</strong></p>`: ''}
             `;
-        });
 
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(angka);
+            // Update chart
+            kpiChart.data.datasets[0].data = [
+                Math.round(result.rataRataPencapaianKPI_BOD * 100 * 100)/100,
+                Math.round(result.rataRataPencapaianKPI_DPS * 100 * 100)/100
+            ];
+            kpiChart.update();
+
+            // Save to history
+            if (saveToHistory) saveHistoryEntry(result);
+
+            return result;
         }
+
+        // Error display
+        function showError(msg) {
+            hasilDiv.innerHTML = `<p class="small" style="color:#b00020;"><strong>Kesalahan:</strong> ${msg}</p>`;
+        }
+
+        // Reset inputs & results
+        function resetAll() {
+            inputs.forEach(i => i.value = '');
+            hasilDiv.innerHTML = '<p class="small">Belum ada perhitungan.</p>';
+            kpiChart.data.datasets[0].data = [0,0];
+            kpiChart.update();
+        }
+
+        // CSV Export
+        function exportCsv() {
+            const res = calculateAndRender(false);
+            if (!res) return;
+            const headers = [
+                'createdAt','danaAmil','persentaseInsentif','danaInsentif','totalBudgetIKL',
+                'nilaiPerPoin','insentifDPS_awal','insentifBOD_awal',
+                'rataRataPencapaianKPI_BOD','insentifBOD_final',
+                'rataRataPencapaianKPI_DPS','insentifDPS_final','totalFinalIKL','catatan'
+            ];
+            const row = headers.map(h => {
+                let v = res[h];
+                if (typeof v === 'number') return v;
+                return `"${String(v).replace(/"/g,'""')}"`;
+            }).join(',');
+            const csv = headers.join(',') + '\n' + row;
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const ts = new Date().toISOString().replace(/[:.]/g,'-');
+            a.download = `insentif_${ts}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // History (localStorage)
+        function loadHistory() {
+            try {
+                const raw = localStorage.getItem(historyKey);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) { return []; }
+        }
+        function saveHistory(list) {
+            localStorage.setItem(historyKey, JSON.stringify(list));
+            renderHistory();
+        }
+        function saveHistoryEntry(entry) {
+            const list = loadHistory();
+            list.unshift(entry); // newest first
+            if (list.length > 50) list.pop(); // cap
+            saveHistory(list);
+        }
+        function clearHistory() {
+            localStorage.removeItem(historyKey);
+            renderHistory();
+        }
+        function renderHistory() {
+            const container = el('historyList');
+            container.innerHTML = '';
+            const list = loadHistory();
+            if (list.length === 0) {
+                container.innerHTML = '<div class="small">Tidak ada riwayat.</div>';
+                return;
+            }
+            list.forEach((it, idx) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                const left = document.createElement('div');
+                left.innerHTML = `<div class="small">${new Date(it.createdAt).toLocaleString()}</div>
+                                  <div class="small">Budget IKL: ${formatRupiah(it.totalBudgetIKL)}</div>`;
+                const right = document.createElement('div');
+                right.style.display = 'flex';
+                right.style.gap = '6px';
+                const btnLoad = document.createElement('button');
+                btnLoad.textContent = 'Load';
+                btnLoad.className = 'ghost';
+                btnLoad.onclick = () => {
+                    // load inputs from entry (if available)
+                    // Note: entry stores results; we re-calc using current inputs if needed.
+                    // Here we just show the stored snapshot in hasilDiv.
+                    hasilDiv.innerHTML = `<p><strong>Snapshot ${new Date(it.createdAt).toLocaleString()}</strong></p>
+                                          <p>Total Budget IKL: ${formatRupiah(it.totalBudgetIKL)}</p>
+                                          <p>Insentif BOD: ${formatRupiah(it.insentifBOD_final)}</p>
+                                          <p>Insentif DPS: ${formatRupiah(it.insentifDPS_final)}</p>`;
+                };
+                const btnDelete = document.createElement('button');
+                btnDelete.textContent = 'Hapus';
+                btnDelete.className = 'ghost';
+                btnDelete.onclick = () => {
+                    const listNow = loadHistory();
+                    listNow.splice(idx,1);
+                    saveHistory(listNow);
+                };
+                right.appendChild(btnLoad);
+                right.appendChild(btnDelete);
+                div.appendChild(left);
+                div.appendChild(right);
+                container.appendChild(div);
+            });
+        }
+
+        // Event bindings
+        el('hitung').addEventListener('click', () => calculateAndRender(true));
+        el('reset').addEventListener('click', resetAll);
+        el('exportCsv').addEventListener('click', exportCsv);
+        el('clearHistory').addEventListener('click', () => { if (confirm('Hapus semua riwayat?')) clearHistory(); });
+        el('print').addEventListener('click', () => window.print());
+
+        // Initial load
+        renderHistory();
     </script>
 </body>
 </html>
